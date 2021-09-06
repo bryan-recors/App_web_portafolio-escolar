@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="col">
+<h1 class="font-italic text-center ">Listado de materias</h1>
+  {% if object_list %}
+   <div class="card">
+       <div class="card-header">
+           <div class="row">
+               <div class="col-md-8">
+                   <strong class="card-title">Listado de Materias / {{date_now}}</strong>
+               </div>
+               <div class="col-md-4">
+                   <a href="#" class="btn btn-primary btnTest">Registrar Materia</a>
+               </div>
+           </div>
+       </div>
+       <div class="table-stats order-table ov-h table-responsive-sm" >
+           <table id="tabla_materias" class="table table-hover" >
+               <thead class="thead-dark">
+                   <tr>
+                       <th scope="col">id</th>
+                       <th scope="col">Nombre</th>
+                       <th scope="col">Descripcion</th>
+                       <th scope="col">Opciones</th>
+                   </tr>
+               </thead>
+               <tbody>
+                 {% for materia in object_list %}
+                 <tr>
+                   <td>{{materia.id}}</td>
+                   <td>{{materia.nombre_mat}}</td>
+                   <td>{{materia.descripcion_mat}}</td>
+                   <td>
+                      <a href="#" class="btn btn-primary">Editar</a>
+                      <a href="#" class="btn btn-danger">Eliminar</a>
+
+                   </td>
+                 </tr>
+                 {% endfor %}
+               </tbody>
+           </table>
+       </div>
+   </div>
+   {% else %}
+   <h1>NO EXISTEN MATERIAS REGISTRADAS </h1>
+   {% endif %}
+
+</div>
+{% endblock %}
+{% block javascript %}
+    <script type="application/javascript">
+        $(function () {
+            $('.btnTest').on('click', function () {
+              alert("q")
+            });
+        });
+    </script>
+{% endblock %}

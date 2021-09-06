@@ -1,0 +1,28 @@
+{% extends 'alumno/home_estudiante.html' %}
+{% block content %}
+  <div class="col">
+  <h1 class="font-italic text-center ">Listado de mis materias</h1>
+  {% if object_list %}
+  <div class="row">
+    {% for materia in object_list %}
+       <div class="col-3 mt-5">
+          <div class="card h-100">
+               <h1 class="font-italic text-center pt-4"><span class="fas fa-book-reader"></span></h1>
+            <div class="card-body">
+              <h5 class="card-title text-center ">{{materia.nombre_mat}}</h5>
+              <div class="justify-content-center d-flex  bd-highlight">
+                <h6 class="text-wrap">ID: <span class="font-weight-light">{{materia.id}}</span></h6>
+              </div>
+              <p class="card-text">{{materia.descripcion_mat}}</p>
+              <a href="{% url 'alumno:mis_tareas' materia.id %}" class = "btn btn-primary ">Tareas</a>
+              <a href="#" class = "btn btn-danger ">Evaluaciones</a>
+            </div>
+          </div>
+       </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <h1>NO EXISTEN MATERIAS REGISTRADAS </h1>
+  {% endif %}
+  </div>
+{% endblock %}

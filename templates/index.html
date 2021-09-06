@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<div class="col">
+  <h4 class="text-center">{{ message }}</h4>
+  <h1 class="font-italic text-center ">Unidad Educativa Gotitas del Saber</h1>
+
+  <div class="text-center">
+    <img src="{% static 'images/escuela.jpg'%}" width="300" height="200" alt="turismo" loading="lazy" >
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% load static %}
+{% url 'login' as login %}
+{% url 'register' as register %}
+
+<nav class="navbar navbar-expand-md bg-primary navbar-dark">
+  <a class="navbar-brand" href="{% url 'index' %}">
+    <p>Docente {{user.first_name}}</p>
+  </a>
+
+  <!-- boton q aparece cuando es pantalla pequeña -->
+  <button type="button" name="button" class="navbar-toggler navbar-toggler-right"
+   data-toggle="collapse" data-target="#navb">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+ <!-- menu -->
+  <div id="navb" class="navbar-collapse collapse hide">
+    <ul class="nav navbar-nav ml-auto">
+
+      <!-- saber si esta autenticado -->
+      {% if user.is_authenticated %}
+          <!-- si esta mostramos logeados muestro logaut y administracion-->
+          <li class="navbar-item">
+            <a href="#" class ="nav-link">
+              <span class="fas fa-address-card"></span>
+              Perfil</a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="{% url 'docente:docente_materias' %}" class ="nav-link">
+              <span class="fas fa-book"></span>
+              Materias</a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#" class ="nav-link">
+              <span class="fas fa-file-alt"></span>
+              Ingresar Notas</a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="{% url 'logout' %}" class ="nav-link">
+              <span class="fas fa-sign-in-alt"></span>
+              Cerrar Sesión</a>
+          </li>
+      {% else %}
+        <!-- si no esta logeado mostramos register y login -->
+        <li class="navbar-item">
+          <a href="{% url 'index' %}" class ="nav-link">
+            <span class="fab fa-elementor"></span>
+            Datos Generales</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
+              <span class="fas fa-user"></span>
+              Usuario
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg-right">
+              <a class="dropdown-item" href="{% url 'login' %}">
+                <span class="fas fa-user"></span>
+                Iniciar seción</a>
+
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">
+                <span class="fas fa-user-plus"></span>
+                Registrarse</a>
+            </div>
+          </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>

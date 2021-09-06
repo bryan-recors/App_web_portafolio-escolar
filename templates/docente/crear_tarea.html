@@ -1,0 +1,14 @@
+{% extends 'docente/home_docente.html' %}
+{% block content %}
+<div class="col border-top">
+  <h1 class="font-italic text-center ">Crear Tarea</h1>
+  <!-- creacion del formulario -->
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form.as_p}}
+    <br/>
+      <a href="{% url 'docente:docente_materias' %}" class="btn btn-danger" >Cancelar</a>
+     <button class="btn btn-primary" type="submit">Registrar</button>
+  </form>
+</div>
+{% endblock %}

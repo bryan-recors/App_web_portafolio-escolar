@@ -1,0 +1,184 @@
+admin de materia**********************
+
+from docente.models import Docente
+
+class DocenteAdmin(admin.ModelAdmin):
+    list_display = ("user","ci_doce","especialidad_doce","docente_materia")
+
+admin.site.register(Docente, DocenteAdmin)
+
+admin de notas*******************
+
+from notas.models import Nota
+# Register your models here.
+class NotaAdmin(admin.ModelAdmin):
+    list_display = ("id","nota_materia", "tarea1_not", "tarea2_not", "tarea3_not", "tarea4_not", "tarea5_not", "tarea6_not", "tarea7_not", "tarea8_not", "evaluacion1_not", "evaluacion2_not", "final_nota", "observaciones_not")
+
+admin.site.register(Nota, NotaAdmin)
+
+admin de materia***********************************
+
+from materia.models import Materia, Tarea, Evaluacion
+
+# Register your models here.
+class MateriaAdmin(admin.ModelAdmin):
+    list_display = ("id","nombre_mat", "descripcion_mat")
+
+class TareaAdmin(admin.ModelAdmin):
+    list_display = ("id","tarea_materia","tarea1_tar", "tarea2_tar", "tarea3_tar", "tarea4_tar", "tarea5_tar", "tarea6_tar", "tarea7_tar", "tarea8_tar")
+
+class EvaluacionAdmin(admin.ModelAdmin):
+    list_display = ("id","evaluacion_materia","evaluacion1_eval", "evaluacion2_eval")
+
+admin.site.register(Materia, MateriaAdmin)
+admin.site.register(Tarea, TareaAdmin)
+admin.site.register(Evaluacion, EvaluacionAdmin)
+
+
+******************************************************modelo de materia *****************************
+from django.db import models
+from alumno.models import Alumno
+
+# Create your models here.
+class Materia(models.Model):
+    nombre_mat = models.CharField(max_length=100, verbose_name="Nombre")
+    descripcion_mat = models.CharField(max_length=50, verbose_name="Descripción")
+    alumno_id = models.ManyToManyField(Alumno, verbose_name="Alumno con cédula")
+    def __str__(self):
+        return self.nombre_mat
+
+class Tarea(models.Model):
+    titulo = models.CharField(max_length= 300,verbose_name="Titulo de la tarea")
+    descripcion_2 = models.TextField(verbose_name="Descripcion")
+    fecha_entrega = models.DateField(blank=True, null=True,verbose_name="Fecha de entrega")
+    tarea_materia = models.ForeignKey(Materia, on_delete=models.CASCADE, verbose_name="Materia")
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name= 'Tarea'
+        verbose_name_plural = 'Tareas'
+        ordering = ['titulo']
+    #para que se muestre por nombre en el admin
+    def __str__(self):
+        return self.titulo
+
+class TrabajoTarea(models.Model):
+    tarea_id = models.ForeignKey(Tarea, on_delete=models.CASCADE, verbose_name="Tarea")
+    alumno_id = models.ForeignKey(Alumno, on_delete=models.CASCADE,verbose_name="Alumno con cedula")
+    trabajo = models.FileField(upload_to='trabajos/', blank=True, null=True)
+    completada = models.BooleanField(default=False)
+
+class Evaluacion(models.Model):
+    titulo = models.CharField(max_length= 300,verbose_name="titulo de la evaluacion")
+    descripcion = models.TextField(verbose_name="Descripcion")
+    fecha_entrega = models.DateField(blank=True, null=True,verbose_name="Fecha de entrega")
+    evaluacion_materia = models.ForeignKey(Materia, on_delete=models.CASCADE, verbose_name="Materia")
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name= 'Evaluacion'
+        verbose_name_plural = 'Evaluaciones'
+        ordering = ['titulo']
+    #para que se muestre por nombre en el admin
+    def __str__(self):
+        return self.titulo
+
+class TrabajoEva(models.Model):
+    trabajo = models.FileField(upload_to='evaluaiones/', blank=True, null=True)
+    evaluacion_id = models.ForeignKey(Evaluacion, on_delete=models.CASCADE, verbose_name="Evaluacion")
+    alumno_id = models.ForeignKey(Alumno, on_delete=models.CASCADE,verbose_name="Alumno con cedula")
+    completada = models.BooleanField(default=False)
+
+
+mixins*******************************************************************************
+
+
+from django.shortcuts import redirect
+from datetime import datetime
+from django.urls import reverse_lazy
+#otra que puedo usar para redirigir
+from django.http import HttpResponseRedirect
+from django.contrib import messages
+
+class IsSuperuserMixin(object):
+    def dispatch(self,request, *args, **kwargs):
+        if request.user.is_superuser:
+            return super().dispatch(request,*args, **kwargs)
+        return redirect('index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['date_now']= datetime.now()
+        return context
+
+class ValidatePermissionRequiredMixin(object):
+    #permiso
+    permission_required = ''
+    #url de retorno
+    url_redirect = None
+    #valido si tiene uno o varios permisos
+    def get_perms(self):
+        if isinstance(self.permission_required, str):
+            perms = (self.permission_required,)
+        else:
+            perms = self.permission_required
+        return perms
+
+    #validar si el usuario indica una url de redireccion
+    def get_url_redirect(self):
+        if self.url_redirect is None:
+            return reverse_lazy('login')
+        return self.url_redirect
+
+   #valido si son los permisos que requiero
+    def dispatch(self,request, *args, **kwargs):
+        if request.user.has_perms(self.get_perms()):
+            return super().dispatch(request,*args, **kwargs)
+        messages.error(request,'No tienes Permiso para acceder a este formulario')
+        return HttpResponseRedirect(self.get_url_redirect())
+
+class TipoPermissionRequiredMixin(object):
+    def dispatch(self,request, *args, **kwargs):
+        if request.user.has_perm('alumno.profesor'):
+            messages.success(request,'hola profesor')
+            return super().dispatch(request,*args, **kwargs)
+        elif request.user.has_perm('alumno.estudiante'):
+            messages.success(request,'hola estudiante')
+            return super().dispatch(request,*args, **kwargs)
+        messages.error(request,'No tienes Permiso de profesor')
+        return redirect('index')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['date_now']= datetime.now()
+        return context
+
+
+url***********************************************
+
+from django.urls import path
+#from django.contrib.auth.decorators import login_required
+from materia.views import ListarMaterias
+
+urlpatterns = [
+    path('listar_materias/',ListarMaterias.as_view(),name ='listar_materias'),
+]
+
+
+las vieews********************************************************
+
+
+from django.shortcuts import render
+from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.http import JsonResponse
+#from materia.forms import FormularioMateria
+from materia.models import Materia
+
+from .mixins import IsSuperuserMixin, ValidatePermissionRequiredMixin,TipoPermissionRequiredMixin
+#para usar el LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class ListarMaterias(LoginRequiredMixin,TipoPermissionRequiredMixin,ListView):
+    #permission_required = 'alumno.estudiante'
+    url_redirect = reverse_lazy('login')
+    model = Materia
+    template_name = 'materia/listar_materias.html'
